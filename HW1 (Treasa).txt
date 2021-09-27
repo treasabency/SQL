@@ -1,0 +1,115 @@
+Treasa Bency Jose
+HW - 1
+09/13/2021
+
+---------------------------------------------------------------------------------------------------
+query #1
+
+select beer 
+from Sells
+where bar = 'Gecko Grill' and not beer = 'Hefeweizen'
+
+Budweiser
+
+---------------------------------------------------------------------------------------------------
+query #2
+
+select distinct k.drinker
+from Likes k
+where exists (select *
+	      from Likes l 
+              where l.drinker = 'Justin' and l.drinker <> k.drinker and l.beer = k.beer)
+
+John
+Mike
+
+---------------------------------------------------------------------------------------------------
+query #3
+
+select distinct f.drinker, f.bar
+from Frequents f, Likes l, Sells s
+where f.drinker = l.drinker and l.beer = s.beer and f.bar = s.bar
+
+Mike	A.P. Stump's
+Jesse	Blue Angel
+Mike	Blue Angel
+John	Cabana
+Mike	Cabana
+John	Caravan
+Justin	Gecko Grill
+Mike	The Shark and Rose
+Justin	Caravan
+Justin	Seven Bamboo
+
+---------------------------------------------------------------------------------------------------
+query #4
+
+select distinct bar
+from Frequents f
+where f.drinker = 'Justin' and bar not in (select distinct bar
+					   from Frequents f
+					   where f.drinker = 'Rebecca')
+union
+select distinct bar
+from Frequents f
+where f.drinker = 'Rebecca' and bar not in (select distinct bar
+					    from Frequents f
+					    where f.drinker = 'Justin')
+
+Caravan
+Seven Bamboo
+Coconut Willie's Cocktail Lounge
+
+---------------------------------------------------------------------------------------------------
+query #5
+
+select distinct f.drinker
+from Frequents f, Likes l, Sells s
+where f.drinker = l.drinker and l.beer = s.beer and f.bar = s.bar
+
+Mike
+Jesse
+John
+Justin
+
+---------------------------------------------------------------------------------------------------
+query #6
+
+select distinct s.bar
+from Sells s
+where s.price < 5.00 and s.beer in (select beer 
+				    from Likes
+				    where drinker = 'John' or drinker = 'Rebecca')
+
+Club 175
+Coconut Willie's Cocktail Lounge
+Gecko Grill
+Giza Hookah Lounge
+Seven Bamboo
+The Backbeat
+The Shark and Rose
+
+---------------------------------------------------------------------------------------------------
+query #7
+
+select drinker
+from Likes
+where beer = 'Hefeweizen' and drinker in (select drinker
+				          from Likes
+					  where beer = "Killian's")
+
+Mike
+
+---------------------------------------------------------------------------------------------------
+query #8
+
+select name
+from Bars 
+where name like '%the%'
+
+The B-Hive
+The Backbeat
+The Blank Club
+The Shark and Rose
+
+---------------------------------------------------------------------------------------------------
