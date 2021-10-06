@@ -1,0 +1,284 @@
+Treasa Bency Jose
+HW - 2
+09/23/2021
+
+---------------------------------------------------------------------------------------------------
+query #1
+
+select name 
+from Beers
+where name not in (select beer
+		   from Sells
+                   where bar = 'Gecko Grill')
+
+Blue Moon
+Bud
+Creamy Dark
+Extra Gold
+Hefeweizen Doppelbock
+ICEHOUSE
+Killian's
+Michelob Amber Bock
+Michelob Golden Draft
+Michelob Golden Draft Light
+Michelob ULTRA
+Original Premium
+Original Premium Lager
+Original Premium Lager Dog
+Sauza Diablo
+Southpaw Light
+Stolichnaya Citrona
+Zima
+Zima Citrus
+
+---------------------------------------------------------------------------------------------------
+query #2
+
+select distinct drinker
+from Likes
+where drinker <> 'Justin' and beer in (select beer
+					from Likes
+					where drinker = 'Justin')
+
+John
+Mike
+
+---------------------------------------------------------------------------------------------------
+query #3
+
+select distinct f.drinker, f.bar
+from Frequents f
+where not exists (select * from Sells s, Likes l 
+                  where f.bar = s.bar 
+                    and s.beer = l.beer
+                    and l.drinker = f.drinker)
+
+Bob	Blue Angel
+Erik	Blue Angel
+Herb	Blue Angel
+Joe	Blue Angel
+John	Blue Angel
+Justin	Blue Angel
+Rebecca	Blue Angel
+Tom	Blue Angel
+Vince	Blue Angel
+Vince	Cabana
+Joe	Caravan
+Tom	Caravan
+Bob	Coconut Willie's Cocktail Lounge
+Joe	Coconut Willie's Cocktail Lounge
+Rebecca	Coconut Willie's Cocktail Lounge
+Rebecca	Gecko Grill
+Herb	Seven Bamboo
+Vince	Seven Bamboo
+Bob	The Blank Club
+Vince	Club 175
+Joe	Britannia Arms
+Tom	Giza Hookah Lounge
+
+---------------------------------------------------------------------------------------------------
+query #4
+
+select distinct name 
+from Bars
+where name not in (select bar from Frequents where drinker = 'Justin') 
+	and name not in (select bar from Frequents where drinker = 'Rebecca')
+
+A.P. Stump's
+Cabana
+The Shark and Rose
+The Blank Club
+Club 175
+Britannia Arms
+Giza Hookah Lounge
+
+---------------------------------------------------------------------------------------------------
+query #5
+
+select distinct f.drinker
+from Frequents f, Sells  s, Likes l 
+where f.drinker = l.drinker and l.beer = s.beer and s.bar = f.bar
+
+Mike
+Jesse
+John
+Justin
+
+---------------------------------------------------------------------------------------------------
+query #6
+
+select distinct bar 
+from Sells 
+group by  bar 
+having MIN(price) >= 5
+
+A.P. Stump's
+Blue Angel
+Blue Tattoo
+Britannia Arms
+Cabana
+Hedley Club
+The B-Hive
+The Blank Club
+
+---------------------------------------------------------------------------------------------------
+query #7
+
+select bar, avg(price) as avg_price
+from Sells 
+group by bar 
+having avg_price = (select max(avg_price)
+		    from (select bar, avg(price) as avg_price
+			  from Sells
+			  group by bar) as maxprice)
+
+Hedley Club	6.750000
+
+---------------------------------------------------------------------------------------------------
+query #8
+
+select bar
+from Sells
+group by bar
+order by avg(price) desc
+
+Hedley Club
+Britannia Arms
+Blue Tattoo
+A.P. Stump's
+Blue Angel
+The Blank Club
+Cabana
+The B-Hive
+The Shark and Rose
+Giza Hookah Lounge
+Gecko Grill
+Caravan
+Club 175
+Eulipia
+The Backbeat
+Coconut Willie's Cocktail Lounge
+Seven Bamboo
+
+---------------------------------------------------------------------------------------------------
+query #9
+
+select name 
+from Bars
+where instr(name, " ") > 0
+
+A.P. Stump's
+Blue Angel
+Blue Tattoo
+Britannia Arms
+Club 175
+Coconut Willie's Cocktail Lounge
+Gecko Grill
+Giza Hookah Lounge
+Hedley Club
+Il Fornaio
+Seven Bamboo
+The B-Hive
+The Backbeat
+The Blank Club
+The Shark and Rose
+
+---------------------------------------------------------------------------------------------------
+query #10
+
+select drinker
+from Likes
+group by drinker
+having count(drinker) >= all
+   (select count(drinker)
+	from Likes
+	group by drinker)
+
+Mike
+
+---------------------------------------------------------------------------------------------------
+query #11
+
+select beer, round(avg(price), 2) as avg_price
+from Sells 
+group by beer 
+having avg_price >= (select max(avg_price)
+		    from (select beer, avg(price) as avg_price
+			  from Sells
+			  group by beer) as maxprice)
+
+Hefeweizen	6.67
+
+---------------------------------------------------------------------------------------------------
+query #12
+
+select bar
+from Sells
+where beer = 'Budweiser' and 
+		price = (select min(price) 
+                from Sells 
+                where beer = 'Budweiser')
+
+Seven Bamboo
+
+---------------------------------------------------------------------------------------------------
+query #13
+
+select distinct f.drinker 
+from Frequents f left outer join Sells s on f.bar = s.bar
+where s.bar not in (select distinct bar from Sells where beer = 'Budweiser') and 
+		f.drinker not in (select distinct drinker from Frequents where f.bar <> bar)
+
+Erik
+Jesse
+
+---------------------------------------------------------------------------------------------------
+query #14
+
+select distinct name 
+from Beers
+where name not in (select distinct s.beer
+		   from Sells s join Frequents f on s.bar = f.bar
+		   where f.drinker = 'Mike')
+
+Blue Moon
+Bud
+Creamy Dark
+Extra Gold
+ICEHOUSE
+Killian's
+Michelob Amber Bock
+Michelob Golden Draft
+Michelob Golden Draft Light
+Michelob ULTRA
+Original Premium
+Original Premium Lager
+Sauza Diablo
+Southpaw Light
+Stolichnaya Citrona
+Zima
+Zima Citrus
+
+---------------------------------------------------------------------------------------------------
+query #15
+
+select "YES" as beer  from Sells 
+where EXISTS(SELECT drinker FROM Likes WHERE beer = ALL(SELECT name FROM Beers)) 
+UNION 
+select 'NO' as beer  from Sells 
+where NOT EXISTS(SELECT drinker FROM Likes WHERE beer = ALL(SELECT name FROM Beers))
+
+NO
+
+---------------------------------------------------------------------------------------------------
+query #16
+
+select distinct beer  from Sells 
+where EXISTS(SELECT drinker FROM Likes WHERE beer = ALL(SELECT name FROM Beers)) 
+UNION 
+select 'No such beer exists' as beer  from Sells 
+where NOT EXISTS(SELECT drinker FROM Likes WHERE beer = ALL(SELECT name FROM Beers))
+
+No such beer exists
+
+---------------------------------------------------------------------------------------------------
